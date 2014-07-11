@@ -18,7 +18,7 @@ func main() {
 	app.Commands = []cli.Command{
 		{
 			Name:  "up",
-			Usage: "increase volume",
+			Usage: "increase volume (with 2%)",
 			Action: func(c *cli.Context) {
 				exec.Command("amixer", "sset", "Master", "2%+", "unmute").Run()
 				volume := GetCurrentVolume()
@@ -27,7 +27,7 @@ func main() {
 		},
 		{
 			Name:  "down",
-			Usage: "decrease volume",
+			Usage: "decrease volume (with 2%)",
 			Action: func(c *cli.Context) {
 				exec.Command("amixer", "sset", "Master", "2%-", "unmute").Run()
 				volume := GetCurrentVolume()
@@ -64,7 +64,7 @@ func main() {
 		},
 		{
 			Name:  "set",
-			Usage: "set volume",
+			Usage: "set volume to a specific value",
 			Action: func(c *cli.Context) {
 				exec.Command("amixer", "sset", "Master", c.Args().First()).Run()
 				volume := GetCurrentVolume()
