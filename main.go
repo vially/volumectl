@@ -21,8 +21,8 @@ func main() {
 			Usage: "increase volume (with 2%)",
 			Action: func(c *cli.Context) {
 				exec.Command("amixer", "sset", "Master", "2%+", "unmute").Run()
-				volume := GetCurrentVolume()
-				ShowVolumeNotification(volume, false)
+				volume := getCurrentVolume()
+				showVolumeNotification(volume, false)
 			},
 		},
 		{
@@ -30,8 +30,8 @@ func main() {
 			Usage: "decrease volume (with 2%)",
 			Action: func(c *cli.Context) {
 				exec.Command("amixer", "sset", "Master", "2%-", "unmute").Run()
-				volume := GetCurrentVolume()
-				ShowVolumeNotification(volume, false)
+				volume := getCurrentVolume()
+				showVolumeNotification(volume, false)
 			},
 		},
 		{
@@ -39,8 +39,8 @@ func main() {
 			Usage: "mute volume",
 			Action: func(c *cli.Context) {
 				exec.Command("amixer", "sset", "Master", "mute").Run()
-				volume := GetCurrentVolume()
-				ShowVolumeNotification(volume, true)
+				volume := getCurrentVolume()
+				showVolumeNotification(volume, true)
 			},
 		},
 		{
@@ -48,8 +48,8 @@ func main() {
 			Usage: "unmute volume",
 			Action: func(c *cli.Context) {
 				exec.Command("amixer", "sset", "Master", "unmute").Run()
-				volume := GetCurrentVolume()
-				ShowVolumeNotification(volume, false)
+				volume := getCurrentVolume()
+				showVolumeNotification(volume, false)
 			},
 		},
 		{
@@ -57,9 +57,9 @@ func main() {
 			Usage: "toggle mute",
 			Action: func(c *cli.Context) {
 				exec.Command("amixer", "sset", "Master", "toggle").Run()
-				volume := GetCurrentVolume()
-				muted := MutedVolume()
-				ShowVolumeNotification(volume, muted)
+				volume := getCurrentVolume()
+				muted := mutedVolume()
+				showVolumeNotification(volume, muted)
 			},
 		},
 		{
@@ -67,15 +67,15 @@ func main() {
 			Usage: "set volume to a specific value",
 			Action: func(c *cli.Context) {
 				exec.Command("amixer", "sset", "Master", c.Args().First()).Run()
-				volume := GetCurrentVolume()
-				ShowVolumeNotification(volume, false)
+				volume := getCurrentVolume()
+				showVolumeNotification(volume, false)
 			},
 		},
 	}
 	app.Action = func(c *cli.Context) {
-		volume := GetCurrentVolume()
+		volume := getCurrentVolume()
 		mute := "[on]"
-		if MutedVolume() {
+		if mutedVolume() {
 			mute = "[off]"
 		}
 		fmt.Println("Volume:", strconv.Itoa(volume)+"%", mute)
@@ -84,7 +84,7 @@ func main() {
 	app.Run(os.Args)
 }
 
-func GetCurrentVolume() int {
+func getCurrentVolume() int {
 	out, err := exec.Command("amixer", "sget", "Master").Output()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to execute amixer command\n")
@@ -98,8 +98,8 @@ func GetCurrentVolume() int {
 		return 0
 	}
 
-	parsed_volume := string(res[1][:])
-	volume, err := strconv.Atoi(parsed_volume)
+	parsedVolume := string(res[1][:])
+	volume, err := strconv.Atoi(parsedVolume)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to convert volume value\n")
 		return 0
@@ -108,7 +108,7 @@ func GetCurrentVolume() int {
 	return volume
 }
 
-func MutedVolume() bool {
+func mutedVolume() bool {
 	out, err := exec.Command("amixer", "sget", "Master").Output()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to execute amixer command\n")
@@ -118,7 +118,7 @@ func MutedVolume() bool {
 	return regexp.MustCompile(`\[(\d+)%\] \[off\]`).Match(out)
 }
 
-func ShowVolumeNotification(volume int, mute bool) {
+func showVolumeNotification(volume int, mute bool) {
 	notify.Init("Hello World!")
 	hello := notify.NotificationNew("Hello World!",
 		"This is an example notification.",
@@ -129,22 +129,22 @@ func ShowVolumeNotification(volume int, mute bool) {
 		return
 	}
 
-	display_volume := int32(volume)
-	icon_name := "notification-audio-volume-medium"
-	if display_volume == 0 {
-		icon_name = "notification-audio-volume-off"
-	} else if display_volume > 70 {
-		icon_name = "notification-audio-volume-high"
-	} else if display_volume < 30 {
-		icon_name = "notification-audio-volume-low"
+	displayVolume := int32(volume)
+	iconName := "notification-audio-volume-medium"
+	if displayVolume == 0 {
+		iconName = "notification-audio-volume-off"
+	} else if displayVolume > 70 {
+		iconName = "notification-audio-volume-high"
+	} else if displayVolume < 30 {
+		iconName = "notification-audio-volume-low"
 	}
 
 	if mute {
-		icon_name = "notification-audio-volume-muted"
+		iconName = "notification-audio-volume-muted"
 	}
 
-	hello.Update(" ", "", icon_name)
-	hello.SetHintInt32("value", display_volume)
+	hello.Update(" ", "", iconName)
+	hello.SetHintInt32("value", displayVolume)
 	hello.SetHintString("synchronous", "volume")
 
 	if e := hello.Show(); e != nil {
