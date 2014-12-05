@@ -3,11 +3,12 @@ package main
 import notify "github.com/mqu/go-notify"
 import (
 	"fmt"
-	"github.com/codegangsta/cli"
 	"os"
 	"os/exec"
 	"regexp"
 	"strconv"
+
+	"github.com/codegangsta/cli"
 )
 
 func main() {
