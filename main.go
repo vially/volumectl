@@ -116,7 +116,7 @@ func mutedVolume() bool {
 		return false
 	}
 
-	return regexp.MustCompile(`\[(\d+)%\] \[off\]`).Match(out)
+	return regexp.MustCompile(`\[off\]`).Match(out)
 }
 
 func showVolumeNotification(volume int, mute bool) {
