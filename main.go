@@ -26,7 +26,12 @@ func main() {
 			Usage: "increase volume (with 2%)",
 			Action: func(c *cli.Context) {
 				exec.Command("pactl", "set-sink-mute", "0", "0").Run()
-				exec.Command("pactl", "set-sink-volume", "0", "+2%").Run()
+				volume := getCurrentVolume()
+				volumeValue := "+2%"
+				if volume >= 98 {
+					volumeValue = "100%"
+				}
+				exec.Command("pactl", "set-sink-volume", "0", volumeValue).Run()
 				showVolumeNotification(false)
 			},
 		},
