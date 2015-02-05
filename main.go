@@ -1,6 +1,10 @@
 package main
 
-import notify "github.com/mqu/go-notify"
+import (
+	"log"
+
+	notify "github.com/mqu/go-notify"
+)
 import (
 	"fmt"
 	"os"
@@ -15,61 +19,58 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "volumectl"
 	app.Usage = "Control master volume from the command line"
-	app.Version = "0.0.1"
+	app.Version = "0.0.3"
 	app.Commands = []cli.Command{
 		{
 			Name:  "up",
 			Usage: "increase volume (with 2%)",
 			Action: func(c *cli.Context) {
-				exec.Command("amixer", "sset", "Master", "2%+", "unmute").Run()
-				volume := getCurrentVolume()
-				showVolumeNotification(volume, false)
+				exec.Command("pactl", "set-sink-mute", "0", "0").Run()
+				exec.Command("pactl", "set-sink-volume", "0", "+2%").Run()
+				showVolumeNotification(false)
 			},
 		},
 		{
 			Name:  "down",
 			Usage: "decrease volume (with 2%)",
 			Action: func(c *cli.Context) {
-				exec.Command("amixer", "sset", "Master", "2%-", "unmute").Run()
-				volume := getCurrentVolume()
-				showVolumeNotification(volume, false)
+				exec.Command("pactl", "set-sink-mute", "0", "0").Run()
+				exec.Command("pactl", "set-sink-volume", "0", "-2%").Run()
+				showVolumeNotification(false)
 			},
 		},
 		{
 			Name:  "mute",
 			Usage: "mute volume",
 			Action: func(c *cli.Context) {
-				exec.Command("amixer", "sset", "Master", "mute").Run()
-				volume := getCurrentVolume()
-				showVolumeNotification(volume, true)
+				exec.Command("pactl", "set-sink-mute", "0", "1").Run()
+				showVolumeNotification(true)
 			},
 		},
 		{
 			Name:  "unmute",
 			Usage: "unmute volume",
 			Action: func(c *cli.Context) {
-				exec.Command("amixer", "sset", "Master", "unmute").Run()
-				volume := getCurrentVolume()
-				showVolumeNotification(volume, false)
+				exec.Command("pactl", "set-sink-mute", "0", "0").Run()
+				showVolumeNotification(false)
 			},
 		},
 		{
 			Name:  "toggle",
 			Usage: "toggle mute",
 			Action: func(c *cli.Context) {
-				exec.Command("amixer", "sset", "Master", "toggle").Run()
-				volume := getCurrentVolume()
+				exec.Command("pactl", "set-sink-mute", "0", "toggle").Run()
 				muted := mutedVolume()
-				showVolumeNotification(volume, muted)
+				showVolumeNotification(muted)
 			},
 		},
 		{
 			Name:  "set",
 			Usage: "set volume to a specific value",
 			Action: func(c *cli.Context) {
-				exec.Command("amixer", "sset", "Master", c.Args().First()).Run()
-				volume := getCurrentVolume()
-				showVolumeNotification(volume, false)
+				exec.Command("pactl", "set-sink-volume", "0", c.Args().First()).Run()
+				muted := mutedVolume()
+				showVolumeNotification(muted)
 			},
 		},
 	}
@@ -86,48 +87,43 @@ func main() {
 }
 
 func getCurrentVolume() int {
-	out, err := exec.Command("amixer", "sget", "Master").Output()
+	out, err := exec.Command("pactl", "list", "sinks").Output()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to execute amixer command\n")
-		return 0
+		log.Fatalf("pactl get volume command failed: %s", err)
 	}
 
-	re := regexp.MustCompile(`\[(\d+)%\]`)
+	re := regexp.MustCompile(`(\d+)%`)
 	res := re.FindSubmatch(out)
 	if res == nil {
-		fmt.Fprintf(os.Stderr, "Unable to parse volume from amixer command output\n")
-		return 0
+		log.Fatal("Unable to parse volume from pactl command output")
 	}
 
 	parsedVolume := string(res[1][:])
 	volume, err := strconv.Atoi(parsedVolume)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to convert volume value\n")
-		return 0
+		log.Fatal("Unable to convert volume value")
 	}
 
 	return volume
 }
 
 func mutedVolume() bool {
-	out, err := exec.Command("amixer", "sget", "Master").Output()
+	out, err := exec.Command("pactl", "list", "sinks").Output()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Unable to execute amixer command\n")
-		return false
+		log.Fatalf("pactl list sinks command failed: %s", err)
 	}
 
-	return regexp.MustCompile(`\[off\]`).Match(out)
+	return regexp.MustCompile(`Mute: yes`).Match(out)
 }
 
-func showVolumeNotification(volume int, mute bool) {
-	notify.Init("Hello World!")
-	hello := notify.NotificationNew("Hello World!",
-		"This is an example notification.",
-		"")
+func showVolumeNotification(mute bool) {
+	volume := getCurrentVolume()
 
-	if hello == nil {
-		fmt.Fprintf(os.Stderr, "Unable to create a new notification\n")
-		return
+	notify.Init("volumectl")
+	notification := notify.NotificationNew("volumectl", "This is an example notification.", "")
+
+	if notification == nil {
+		log.Fatal("Unable to create a new notification")
 	}
 
 	displayVolume := int32(volume)
@@ -144,13 +140,12 @@ func showVolumeNotification(volume int, mute bool) {
 		iconName = "notification-audio-volume-muted"
 	}
 
-	hello.Update(" ", "", iconName)
-	hello.SetHintInt32("value", displayVolume)
-	hello.SetHintString("synchronous", "volume")
+	notification.Update(" ", "", iconName)
+	notification.SetHintInt32("value", displayVolume)
+	notification.SetHintString("synchronous", "volume")
 
-	if e := hello.Show(); e != nil {
-		fmt.Fprintf(os.Stderr, "%s\n", e.Message())
-		return
+	if err := notification.Show(); err != nil {
+		log.Fatalf("Unable to display notification. %s", err.Message())
 	}
 
 	notify.UnInit()
