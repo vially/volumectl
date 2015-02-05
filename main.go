@@ -1,18 +1,15 @@
 package main
 
 import (
-	"log"
-
-	notify "github.com/mqu/go-notify"
-)
-import (
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 	"regexp"
 	"strconv"
 
 	"github.com/codegangsta/cli"
+	notify "github.com/mqu/go-notify"
 )
 
 func main() {
