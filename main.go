@@ -143,10 +143,7 @@ func showVolumeNotification(mute bool) {
 	notification.Update(" ", "", iconName)
 	notification.SetHintInt32("value", displayVolume)
 	notification.SetHintString("synchronous", "volume")
-
-	if err := notification.Show(); err != nil {
-		log.Fatalf("Unable to display notification. %s", err.Message())
-	}
+	notification.Show()
 
 	notify.UnInit()
 }
