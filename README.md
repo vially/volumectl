@@ -11,7 +11,7 @@
 ## Usage Examples
 
 ##### Increase volume (by default the increment is 2%):
-`$ volumectl up` 
+`$ volumectl up`
 
 ##### Increase volume with 7%:
 `$ volumectl set 7%+`
@@ -35,7 +35,7 @@
 
 #### Requirements
  * [Go](http://golang.org/doc/install) is required to build this package from source
- * `alsa-utils` is needed because the `amixer` utility is called by `volumectl`
+ * [PulseAudio](http://www.freedesktop.org/wiki/Software/PulseAudio/) 6.0
  * [notify-osd](https://launchpad.net/ubuntu/+source/notify-osd) is required for displaying the notifications
 
 #### Download and install package
@@ -45,7 +45,7 @@
 ## Available Commands
     USAGE:
        volumectl command [arguments]
-    
+
     COMMANDS:
        up          increase volume (with 2%)
        down        decrease volume (with 2%)
@@ -54,7 +54,7 @@
        toggle      toggle mute
        set         set volume to a specific value
        help, h     Shows a list of commands or help for one command
-       
+
     GLOBAL OPTIONS:
        --version, -v    print the version
        --help, -h       show help
