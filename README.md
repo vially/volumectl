@@ -34,9 +34,9 @@
 ### Building from source
 
 #### Requirements
- * [Go](http://golang.org/doc/install) is required to build this package from source
  * [PulseAudio](http://www.freedesktop.org/wiki/Software/PulseAudio/) 6.0
  * [notify-osd](https://launchpad.net/ubuntu/+source/notify-osd) is required for displaying the notifications
+ * [Go](http://golang.org/doc/install) is required to build this package from source
 
 #### Download and install package
 `go get github.com/vially/volumectl`
