@@ -45,6 +45,7 @@ func (pa *PulseAudio) SetVolume(volume string) {
 func (pa *PulseAudio) IncreaseVolume() {
 	pa.SetMute(false)
 	volumeValue := "+2%"
+	pa.Volume += 2
 	if pa.Volume >= 98 {
 		volumeValue = "100%"
 		pa.Volume = 100
