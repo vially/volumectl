@@ -28,18 +28,18 @@
 
 ## Installation
 
+The easiest way to install `volumectl` is to download the latest binary from [Releases](https://github.com/vially/volumectl/releases) and add it to your `PATH`.
+
 ### Arch Linux
-`volumectl` is available from the [AUR](https://aur.archlinux.org/packages/volumectl/)
+`volumectl` is also available from the [AUR](https://aur.archlinux.org/packages/volumectl/)
 
 ### Building from source
 
-#### Requirements
- * [PulseAudio](http://www.freedesktop.org/wiki/Software/PulseAudio/) 6.0
- * [notify-osd](https://launchpad.net/ubuntu/+source/notify-osd) is required for displaying the notifications
- * [Go](http://golang.org/doc/install) is required to build this package from source
+If you're a developer or you want to build it from source you should: `go get github.com/vially/volumectl`
 
-#### Download and install package
-`go get github.com/vially/volumectl`
+## Runtime Requirements
+ * [PulseAudio](http://www.freedesktop.org/wiki/Software/PulseAudio/) 6.0
+ * [notify-osd](https://launchpad.net/ubuntu/+source/notify-osd) (required for displaying the notifications)
 
 
 ## Available Commands
