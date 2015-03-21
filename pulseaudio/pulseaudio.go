@@ -1,10 +1,12 @@
 package pulseaudio
 
 import (
+	"fmt"
 	"log"
 	"os/exec"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 // PulseAudio client
@@ -16,8 +18,9 @@ type PulseAudio struct {
 
 // New returns a new PulseAudio client
 func New() *PulseAudio {
-	volume, muted := getCurrentVolume()
-	return &PulseAudio{defaultSink: getDefaultSink(), Volume: volume, Muted: muted}
+	pa := &PulseAudio{defaultSink: detectDefaultSink()}
+	pa.detectCurrentVolume()
+	return pa
 }
 
 // SetMute mutes or unmutes the default sink
@@ -63,7 +66,7 @@ func (pa *PulseAudio) DecreaseVolume() {
 	exec.Command("pactl", "set-sink-volume", pa.defaultSink, "-2%").Run()
 }
 
-func getDefaultSink() string {
+func detectDefaultSink() string {
 	out, err := exec.Command("pactl", "info").Output()
 	if err != nil {
 		log.Fatalf("Unable to detect default sink: %s", err)
@@ -79,23 +82,37 @@ func getDefaultSink() string {
 	return defaultSink
 }
 
-func getCurrentVolume() (int, bool) {
+func (pa *PulseAudio) detectCurrentVolume() {
 	out, err := exec.Command("pactl", "list", "sinks").Output()
 	if err != nil {
 		log.Fatalf("pactl get volume command failed: %s", err)
 	}
 
+	currentSinkOutput, err := findSinkByName(out, pa.defaultSink)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	re := regexp.MustCompile(`(\d+)%`)
-	res := re.FindSubmatch(out)
+	res := re.FindSubmatch(currentSinkOutput)
 	if res == nil {
 		log.Fatal("Unable to parse volume from pactl command output")
 	}
 
 	parsedVolume := string(res[1][:])
-	volume, err := strconv.Atoi(parsedVolume)
+	pa.Volume, err = strconv.Atoi(parsedVolume)
 	if err != nil {
 		log.Fatal("Unable to convert volume value")
 	}
+	pa.Muted = regexp.MustCompile(`Mute: yes`).Match(currentSinkOutput)
+}
 
-	return volume, regexp.MustCompile(`Mute: yes`).Match(out)
+func findSinkByName(output []byte, sinkName string) ([]byte, error) {
+	sinks := strings.Split(string(output), "Sink #")
+	for _, sinkOutput := range sinks {
+		if strings.Contains(sinkOutput, fmt.Sprintf("Name: %s", sinkName)) {
+			return []byte(sinkOutput), nil
+		}
+	}
+	return nil, fmt.Errorf("Unable to find sink named %s in 'pactl list sinks` output", sinkName)
 }

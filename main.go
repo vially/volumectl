@@ -15,7 +15,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "volumectl"
 	app.Usage = "Control volume from the command line"
-	app.Version = "0.0.3"
+	app.Version = "0.0.4"
 	app.Commands = []cli.Command{
 		{
 			Name:  "up",
