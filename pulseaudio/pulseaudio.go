@@ -42,6 +42,7 @@ func (pa *PulseAudio) ToggleMute() {
 // SetVolume sets the volume on the default sink
 func (pa *PulseAudio) SetVolume(volume string) {
 	exec.Command("pactl", "set-sink-volume", pa.defaultSink, volume).Run()
+	pa.detectCurrentVolume()
 }
 
 // IncreaseVolume increases the volume on the default sink by 2%
