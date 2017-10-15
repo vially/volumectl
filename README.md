@@ -38,7 +38,7 @@ The easiest way to install `volumectl` is to download the latest binary from [Re
 If you're a developer or you want to build it from source you should: `go get github.com/vially/volumectl`
 
 ## Runtime Requirements
- * [PulseAudio](http://www.freedesktop.org/wiki/Software/PulseAudio/) 6.0
+ * [PulseAudio](http://www.freedesktop.org/wiki/Software/PulseAudio/)
  * [notify-osd](https://launchpad.net/ubuntu/+source/notify-osd) (required for displaying the notifications)
 
 
