@@ -5,7 +5,7 @@
 
 ![notification bubble](https://wiki.ubuntu.com/Sound?action=AttachFile&do=get&target=notification.jpg)
 
-`volumectl` displays a nice notification bubble when [notify-osd](https://launchpad.net/ubuntu/+source/notify-osd) is installed.
+`volumectl` displays a nice notification bubble when [a notification server](https://wiki.archlinux.org/index.php/Desktop_notifications#Notification_servers) is installed.
 
 
 ## Usage Examples
@@ -39,7 +39,7 @@ If you're a developer or you want to build it from source you should: `go get gi
 
 ## Runtime Requirements
  * [PulseAudio](http://www.freedesktop.org/wiki/Software/PulseAudio/)
- * [notify-osd](https://launchpad.net/ubuntu/+source/notify-osd) (required for displaying the notifications)
+ * [Desktop notification server](https://wiki.archlinux.org/index.php/Desktop_notifications#Notification_servers) (required for displaying the notifications)
 
 
 ## Available Commands
