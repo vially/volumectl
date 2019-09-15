@@ -1,4 +1,6 @@
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
+github.com/adrg/xdg v0.0.0-20190319220657-88e5137d2444 h1:LFWged5Fa7JSlGV5GzKt8qEwPBUtLV65aIEaD+Ver+8=
+github.com/adrg/xdg v0.0.0-20190319220657-88e5137d2444/go.mod h1:ZuOshBmzV4Ta+s23hdfFZnBsdzmoR3US0d7ErpqSbTQ=
 github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d h1:U+s90UTSYgptZMwQh2aRr3LuazLJIa+Pg3Kc1ylSYVY=
 github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d/go.mod h1:maD7wRr/U5Z6m/iR4s+kqSMx2CaBsrgA7czyZG/E6dU=
 github.com/esiqveland/notify v0.1.2 h1:eKtUsFNX56PsX6OTwRkJIyv63r7dtEiTad7cw1Vjg7w=
