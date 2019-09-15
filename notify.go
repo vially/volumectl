@@ -1,37 +1,51 @@
 package main
 
 import (
-	"log"
-
-	"github.com/mqu/go-notify"
+	"github.com/esiqveland/notify"
+	"github.com/godbus/dbus"
+	"golang.org/x/xerrors"
 )
 
-func showVolumeNotification(volume int, mute bool) {
-	notify.Init("volumectl")
-	notification := notify.NotificationNew("volumectl", "This is an example notification.", "")
+var defaultNotificationClient = &notificationClient{}
 
-	if notification == nil {
-		log.Fatal("Unable to create a new notification")
+type notificationClient struct{}
+
+func (c *notificationClient) showVolumeNotification(volume int, mute bool) error {
+	conn, err := dbus.SessionBus()
+	if err != nil {
+		return xerrors.Errorf("error connecting to DBus: %w", err)
 	}
 
-	displayVolume := int32(volume)
+	n := notify.Notification{
+		AppName:       "volumectl",
+		AppIcon:       c.notificationVolumeIcon(volume, mute),
+		ExpireTimeout: int32(3000),
+		Hints: map[string]dbus.Variant{
+			"value":       dbus.MakeVariant(volume),
+			"synchronous": dbus.MakeVariant("volume"),
+		},
+	}
+
+	if _, err := notify.SendNotification(conn, n); err != nil {
+		return xerrors.Errorf("error sending notification: %w", err)
+	}
+	return nil
+}
+
+func (c *notificationClient) notificationVolumeIcon(volume int, mute bool) string {
 	iconName := "notification-audio-volume-medium"
-	if displayVolume == 0 {
-		iconName = "notification-audio-volume-off"
-	} else if displayVolume > 70 {
-		iconName = "notification-audio-volume-high"
-	} else if displayVolume < 30 {
-		iconName = "notification-audio-volume-low"
-	}
-
 	if mute {
 		iconName = "notification-audio-volume-muted"
+	} else if volume == 0 {
+		iconName = "notification-audio-volume-off"
+	} else if volume > 70 {
+		iconName = "notification-audio-volume-high"
+	} else if volume < 30 {
+		iconName = "notification-audio-volume-low"
 	}
+	return iconName
+}
 
-	notification.Update(" ", "", iconName)
-	notification.SetHintInt32("value", displayVolume)
-	notification.SetHintString("synchronous", "volume")
-	notification.Show()
-
-	notify.UnInit()
+func showVolumeNotification(volume int, mute bool) error {
+	return defaultNotificationClient.showVolumeNotification(volume, mute)
 }
