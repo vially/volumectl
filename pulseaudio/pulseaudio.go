@@ -46,10 +46,10 @@ func (pa *PulseAudio) SetVolume(volume string) {
 }
 
 // IncreaseVolume increases the volume on the default sink by 2%
-func (pa *PulseAudio) IncreaseVolume() {
+func (pa *PulseAudio) IncreaseVolume(percent int) {
 	pa.SetMute(false)
-	volumeValue := "+2%"
-	pa.Volume += 2
+	volumeValue := fmt.Sprintf("+%d%%", percent)
+	pa.Volume += percent
 	if pa.Volume >= 98 {
 		volumeValue = "100%"
 		pa.Volume = 100
@@ -58,13 +58,14 @@ func (pa *PulseAudio) IncreaseVolume() {
 }
 
 // DecreaseVolume decreases the volume on the default sink by 2%
-func (pa *PulseAudio) DecreaseVolume() {
+func (pa *PulseAudio) DecreaseVolume(percent int) {
 	pa.SetMute(false)
-	pa.Volume -= 2
+	volumeValue := fmt.Sprintf("-%d%%", percent)
+	pa.Volume -= percent
 	if pa.Volume < 0 {
 		pa.Volume = 0
 	}
-	exec.Command("pactl", "set-sink-volume", pa.defaultSink, "-2%").Run()
+	exec.Command("pactl", "set-sink-volume", pa.defaultSink, volumeValue).Run()
 }
 
 func detectDefaultSink() string {
