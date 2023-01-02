@@ -19,18 +19,38 @@ func main() {
 	app.Commands = []cli.Command{
 		{
 			Name:  "up",
-			Usage: "increase volume (with 2%)",
+			Usage: "increase volume (default to 2%)",
 			Action: func(c *cli.Context) {
-				pa.IncreaseVolume()
+				percent := c.Int("percent")
+				if percent == 0 {
+					percent = 2
+				}
+				pa.IncreaseVolume(percent)
 				showVolumeNotification(pa.Volume, pa.Muted)
+			},
+			Flags: []cli.Flag{
+				&cli.IntFlag{
+					Name:  "percent",
+					Usage: "percent to use for increase",
+				},
 			},
 		},
 		{
 			Name:  "down",
-			Usage: "decrease volume (with 2%)",
+			Usage: "decrease volume (default to 2%)",
 			Action: func(c *cli.Context) {
-				pa.DecreaseVolume()
+				percent := c.Int("percent")
+				if percent == 0 {
+					percent = 2
+				}
+				pa.DecreaseVolume(percent)
 				showVolumeNotification(pa.Volume, pa.Muted)
+			},
+			Flags: []cli.Flag{
+				&cli.IntFlag{
+					Name:  "percent",
+					Usage: "percent to use for decrease",
+				},
 			},
 		},
 		{
